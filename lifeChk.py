@@ -4,16 +4,18 @@
 #################
 import sys
 #if not sys.argv[1]:
-#	sys.exit(2)
+#       sys.exit(2)
 
-twitchid = "59hrsplx7dmvc17pqkqcm9l3n1uzc4"
 from twitch import TwitchClient
+twitchid = "59hrsplx7dmvc17pqkqcm9l3n1uzc4"
 client = TwitchClient(client_id=twitchid) #client init
 user_id=client.users.translate_usernames_to_ids(sys.argv[1])[0].id #get id
 #get live by id (if var not empty)
 
 if client.streams.get_stream_by_user(user_id):
-	sys.exit(0)
-else:
-	sys.exit(1)
+    print(user_id)
+    print(client.streams.get_stream_by_user(user_id).stream_type)
+    if client.streams.get_stream_by_user(user_id).stream_type == 'live':
+        sys.exit(0)
 
+sys.exit(1)
