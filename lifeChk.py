@@ -3,11 +3,12 @@
 # return 0 if streamer is live (continue exec while in bash), 1 if not
 #################
 import sys
+import conf_python
 #if not sys.argv[1]:
 #       sys.exit(2)
 
 from twitch import TwitchClient
-twitchid = "59hrsplx7dmvc17pqkqcm9l3n1uzc4"
+
 client = TwitchClient(client_id=twitchid) #client init
 user_id=client.users.translate_usernames_to_ids(sys.argv[1])[0].id #get id
 #get live by id (if var not empty)

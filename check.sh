@@ -13,5 +13,5 @@ source /opt/downloader/list.sh
 
 #set pid and start downloading
 touch $path/$1/pid
-/home/ubuntu/.local/bin/youtube-dl -v -o $path/$1/"%(uploader)s__%(upload_date)s_%(timestamp)s__%(title)s_%(id)s.%(ext)s" twitch.tv/$1 > $path/$1/youtube-dl.log
+/home/ubuntu/.local/bin/youtube-dl -v -o $path/$1/"%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s" twitch.tv/$1 >> $path/$1/youtube-dl.log
 rm $path/$1/pid
