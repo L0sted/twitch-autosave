@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #################
-# return 0 if streamer is live (continue exec while in bash), 1 if not
+# return 0 if streamer is live (continue execution while in bash), 1 if not
 #################
 import sys
 import conf_python
