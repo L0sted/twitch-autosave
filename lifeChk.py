@@ -3,7 +3,7 @@
 # return 0 if streamer is live (continue execution while in bash), 1 if not
 #################
 import sys
-import conf_python
+import config_python
 #if not sys.argv[1]:
 #       sys.exit(2)
 

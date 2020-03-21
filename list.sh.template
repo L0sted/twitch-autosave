@@ -1,9 +1,0 @@
-#!/bin/bash
-###########
-#   just config file
-###########
-
-list="jesusavgn"
-
-path="/media/twitch/automatedRecording"
-ytdliConf="-o %(uploader)s__%(upload_date)s_%(timestamp)s__%(title)s_%(id)s.%(ext)s"

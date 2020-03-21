@@ -1,0 +1,10 @@
+#!/bin/bash
+###########
+#   just config file
+###########
+
+list="jesusavgn"
+
+storage_path="/media/nfs/twitch/automatedRecording"
+ytdl_path="/home/ubuntu/.local/bin"
+ytdl_conf="-o %(uploader)s__%(upload_date)s_%(timestamp)s__%(title)s_%(id)s.%(ext)s"
