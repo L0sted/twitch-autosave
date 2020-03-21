@@ -3,7 +3,7 @@
 # (actually main) script which cron (systemd.timer) starts by time
 ##########
 full_path=$(dirname "$(realpath $0)")
-source /opt/downloader/config_list.sh
+source $full_path/config_list.sh
 
 for i in $list; do
     echo "$i is live?..."
