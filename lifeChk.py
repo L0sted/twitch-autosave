@@ -9,7 +9,7 @@ import config_python
 
 from twitch import TwitchClient
 
-client = TwitchClient(client_id=twitchid) #client init
+client = TwitchClient(client_id=config_python.twitchid) #client init
 user_id=client.users.translate_usernames_to_ids(sys.argv[1])[0].id #get id
 #get live by id (if var not empty)
 

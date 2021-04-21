@@ -12,7 +12,7 @@ for i in $list; do
     [ ! -d $storage_path/$i ] && mkdir -p $storage_path/$i && echo "Created dir $storage_path/$i"
 
     #detached check & start
-    screen -dmS $i bash $full_path/check.sh $i
+    bash $full_path/check.sh $i
     sleep 2
     
 done
@@ -21,6 +21,6 @@ done
 echo "===="
 
 for i in $list; do
-        [ -f $storage_path/$i/pid] && echo $i "is recording!" || echo $i "is not recording"
+        [[ -f $storage_path/$i/pid ]] && echo $i "is recording!" || echo $i "is not recording"
 done
 echo "===="

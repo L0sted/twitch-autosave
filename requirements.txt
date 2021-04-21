@@ -1,0 +1,2 @@
+youtube-dl==2021.4.17
+python-twitch-client==0.7.1
