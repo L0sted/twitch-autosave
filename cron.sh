@@ -12,7 +12,7 @@ for i in $list; do
     [ ! -d $storage_path/$i ] && mkdir -p $storage_path/$i && echo "Created dir $storage_path/$i"
 
     #detached check & start
-    bash $full_path/check.sh $i
+    nohup bash $full_path/check.sh $i &>> $storage_path/$1/youtube-dl.log &
     sleep 2
     
 done
