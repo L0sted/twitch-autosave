@@ -19,8 +19,7 @@ done
 
 #Show status
 echo "===="
-
 for i in $list; do
-        [[ -f $storage_path/$i/pid ]] && echo $i "is recording!" || echo $i "is not recording"
+    [[ -f $storage_path/$i/pid ]] && echo $i "is recording!" || echo $i "is not recording"
 done
 echo "===="
