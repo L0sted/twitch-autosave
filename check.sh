@@ -17,12 +17,11 @@ source $full_path/config_list.sh
 
 touch $storage_path/$1/pid
 
-#exit if no stream
-$full_path/lifeChk.py $1 $twitchid || rm $storage_path/$1/pid ; exit 0
-# echo `$full_path/lifeChk.py $1`
+#exit if no stream and remove lock
+$full_path/lifeChk.py $1 $twitchid || rm $storage_path/$1/pid || exit 0
 
 #set pid and start recording
 /home/losted/.local/bin/youtube-dl -v -o $storage_path/$1/"%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s" twitch.tv/$1 >> $storage_path/$1/youtube-dl.log 2>&1 
 
-#remove pid
+# remove pid
 rm $storage_path/$1/pid

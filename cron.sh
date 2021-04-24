@@ -23,3 +23,7 @@ for i in $list; do
     [[ -f $storage_path/$i/pid ]] && echo $i "is recording!" || echo $i "is not recording"
 done
 echo "===="
+echo "Removing old files (older than $ctime_remove days)"
+find $storage_path/ -ctime +$ctime_remove -name "*mp4*" 
+find $storage_path/ -ctime +$ctime_remove -name "*mp4*" -exec rm {} \;
+echo "Done"
