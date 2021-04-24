@@ -15,7 +15,7 @@ source $full_path/config_list.sh
 #if pid exists and stream is live, than exit and do not start recording
 [ -f $storage_path/$1/pid ] && $full_path/lifeChk.py $1 $twitchid && exit 0
 
-touch $storage_path/$1/pid
+echo $$ > $storage_path/$1/pid
 
 #exit if no stream and remove lock
 $full_path/lifeChk.py $1 $twitchid || rm $storage_path/$1/pid || exit 0
