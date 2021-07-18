@@ -46,7 +46,8 @@ def checkAlive(streamers, client_id):
         else:
             print(i+" Не стримит")
 
-
+def removeOldStreams():
+    pass
 
 if __name__ == "__main__":
     checkAlive(config_python.streamers, config_python.twitchid)
