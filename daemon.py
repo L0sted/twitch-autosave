@@ -22,7 +22,7 @@ def recorder(i):
     # FIXME: пофиксить абсолютный путь
     cmdline = ["/home/losted/.local/bin/youtube-dl","twitch.tv/"+i]
     import subprocess
-    s = subprocess.call(cmdline)
+    s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
 
 def checkAlive(streamers, client_id):
