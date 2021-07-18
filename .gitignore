@@ -2,3 +2,4 @@ list.sh
 config_python.py
 config_list.sh
 __pycache__
+.vscode
