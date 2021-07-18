@@ -1,18 +1,22 @@
 # Что это?
 
-Скрипт который проверяет и начинает запись live стримов
+Скрипт который проверяет и начинает запись стримов с твича (WIP)
 
 # Как юзать?
 
-* Поставить youtube-dl, python-twitch-client (TODO: создать requirements.txt для автоматической установки)
+* Поставить youtube-dl, python-twitch-client
 
 `pip3 install python-twitch-client youtube-dl`
 
-* Переименовать файл conf_python.py.template в conf_python.py и добавить свой ключ (Можно получить на https://dev.twitch.tv/console)
+* Создать файл conf_python.py и добавить свой ключ (Можно получить на https://dev.twitch.tv/console), а также переменные: 
 
-* Переименовать файл list.sh.template в list.sh, добавить стримеров в параметре list (через пробел), изменить путь для сохранения стримов в path
+```
+twitchid="ID" # ID ключа
+streamers = ("jesusavgn", "252mart", "vi0xxx") # список стримеров в таком формате
+path="/путь/до/диры/со/стримами" # путь до директории, куда писать стримы
+```
 
-* Добавить cron.sh в crontab, ну и офк убедиться что cron.service запущен (systemd timer не подойдет ибо он убивает child процессы после завершения работы родителя)
+* Добавить daemon.py в crontab, ну и офк убедиться что cron.service запущен (systemd timer не подойдет ибо он убивает child процессы после завершения работы родителя)
 
 `*/5 * * * * /opt/twitch-downloader/cron.sh`
 
