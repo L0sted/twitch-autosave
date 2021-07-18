@@ -20,14 +20,16 @@ def recorder(i):
     '''
     Функция, которая запускает youtube-dl, фактически записывает стрим
     '''
+    path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
     # FIXME: пофиксить абсолютный путь
     cmdline = ["/home/losted/.local/bin/youtube-dl","https://twitch.tv/"+i]
     import subprocess
     s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
-    os.system("rm "+config_python.path + "/"+i+"/pid")
-    print("lock файл удален")
+    if (os.path.exists(path+"/pid")):
+        os.system("rm "+path+"/pid")
+        print("lock файл удален")
 
 def checkAlive(streamers, client_id):
     '''
@@ -40,7 +42,7 @@ def checkAlive(streamers, client_id):
     for i in streamers:
         # Путь до диры со стримами
         path = config_python.path + "/"+ i
-        # Создаем путь, если его нет
+        # Создаем путь до диры со стримером, если его нет
         if not (os.path.exists(config_python.path+"/"+i)):
             os.makedirs(path)
         # TODO: Сделать проверку на наличие стримера
@@ -57,7 +59,9 @@ def checkAlive(streamers, client_id):
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
             print(i+" Не стримит")
-            os.system("rm "+path+"/pid")
+            # Если есть лок, то удаляем
+            if (os.path.exists(path+"/pid")):
+                os.system("rm "+path+"/pid")
 
 
 def removeOldStreams():
