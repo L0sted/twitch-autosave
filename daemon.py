@@ -8,6 +8,11 @@ import os
 from threading import Thread
 import json
 import config_python
+import schedule
+from twitch import TwitchClient
+import subprocess
+import time
+
 
 locked_streams = list()
 
@@ -47,7 +52,6 @@ def recorder(i):
     print("Записываем стрим %s\n" % i)
     # FIXME: пофиксить абсолютный путь
     cmdline = ["youtube-dl","https://twitch.tv/"+i]
-    import subprocess
     # Не хочу делать тут проверку на существование "youtube-dl" в $PATH
     s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
@@ -55,13 +59,14 @@ def recorder(i):
         os.system("rm "+path+"/pid")
         print("lock файл удален")
 
-def checkAlive(streamers, client_id):
+def checkAlive():
+    streamers = config_python.streamers
+    client_id = config_python.twitchid
     '''
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
     '''
-    from twitch import TwitchClient
     client = TwitchClient(client_id=client_id)
     for i in streamers:
         # Путь до диры со стримами
@@ -93,5 +98,8 @@ def removeOldStreams():
     pass
 
 if __name__ == "__main__":
-    if not checkTools(): exit()
-    checkAlive(config_python.streamers, config_python.twitchid)
+    # if not checkTools(): exit()
+    schedule.every(config_python.period).minutes.do(checkAlive)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)    
