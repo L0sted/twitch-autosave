@@ -11,6 +11,16 @@ import config_python
 
 locked_streams = list()
 
+def which(command):
+    # Пиздец, почему нет нормального аналога which из bash???
+    # Мой аналог отдает true или false если есть или нет утилиты command
+    for dirs in os.get_exec_path():
+        if command in os.listdir(dirs):
+            # Если что-нибудь нашли, то True
+            return True
+    # Если ничего не нашли во всех дирах, то завершает функцию с False
+    return False
+
 def startRecord(i):
     '''
     Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
