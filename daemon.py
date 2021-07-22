@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
-# база со стримерами в json файле
+# FIXME: не создавать папки для несуществующих стримеров
+# TODO: Сделать нормальную конфигурацию
+# TODO: Автоматически удалять старые стримы
 
 import os
 from threading import Thread
@@ -23,8 +25,9 @@ def recorder(i):
     path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
     # FIXME: пофиксить абсолютный путь
-    cmdline = ["/home/losted/.local/bin/youtube-dl","https://twitch.tv/"+i]
+    cmdline = ["youtube-dl","https://twitch.tv/"+i]
     import subprocess
+    # Не хочу делать тут проверку на существование "youtube-dl" в $PATH
     s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
     if (os.path.exists(path+"/pid")):
@@ -65,6 +68,7 @@ def checkAlive(streamers, client_id):
 
 
 def removeOldStreams():
+    # https://clck.ru/WHh32
     pass
 
 if __name__ == "__main__":
