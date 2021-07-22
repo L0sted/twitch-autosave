@@ -72,7 +72,7 @@ def checkAlive():
         # Путь до диры со стримами
         path = config_python.path + "/"+ i
         # Создаем путь до диры со стримером, если его нет
-        if not (os.path.exists(config_python.path + "/" + i)):
+        if not (os.path.exists(path)):
             os.makedirs(path)
         user_id=client.users.translate_usernames_to_ids(i)[0]['id'] # Получить ID по нику
         # Если стрим идет, то идем дальше
