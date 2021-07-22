@@ -6,7 +6,6 @@
 
 import os
 from threading import Thread
-import json
 import config_python
 import schedule
 from twitch import TwitchClient
@@ -14,16 +13,16 @@ import subprocess
 import time
 
 
-locked_streams = list()
-
 def which(command):
     # Пиздец, почему нет нормального аналога which из bash???
-    # Мой аналог отдает true или false если есть или нет утилиты command
+    '''
+    Мой аналог which из bash'а, который отдает true или false при наличии или отсутствии утилиты    
+    '''
     for dirs in os.get_exec_path():
         if command in os.listdir(dirs):
             # Если что-нибудь нашли, то True
             return True
-    # Если ничего не нашли во всех дирах, то завершает функцию с False
+    # Если ничего не нашли во всех дирах, то выходим с False
     return False
 
 def checkTools():
@@ -50,9 +49,9 @@ def recorder(i):
     '''
     path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
-    # FIXME: пофиксить абсолютный путь
+    # cmdline для запуска youtube-dl 
+    # TODO: сделать возможность добавлять свои параметры
     cmdline = ["youtube-dl","https://twitch.tv/"+i]
-    # Не хочу делать тут проверку на существование "youtube-dl" в $PATH
     s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
     if (os.path.exists(path+"/pid")):
@@ -98,7 +97,7 @@ def removeOldStreams():
     pass
 
 if __name__ == "__main__":
-    # if not checkTools(): exit()
+    if not checkTools(): exit()
     schedule.every(config_python.period).minutes.do(checkAlive)
     while True:
         schedule.run_pending()
