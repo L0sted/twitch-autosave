@@ -21,6 +21,17 @@ def which(command):
     # Если ничего не нашли во всех дирах, то завершает функцию с False
     return False
 
+def checkTools():
+    '''
+    Проверяет, установлены ли необходимые утилиты
+    '''
+    tools = ('youtube-dl', 'ffmpeg')
+    for i in tools:
+        if not which(i):
+            print(i + " не установлен")
+            return False
+    return True
+
 def startRecord(i):
     '''
     Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
@@ -82,4 +93,5 @@ def removeOldStreams():
     pass
 
 if __name__ == "__main__":
+    if not checkTools(): exit()
     checkAlive(config_python.streamers, config_python.twitchid)
