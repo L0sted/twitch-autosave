@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
+# TODO: Сделать проверку на наличие стримера
 # FIXME: не создавать папки для несуществующих стримеров
 # TODO: Сделать нормальную конфигурацию
 # TODO: Автоматически удалять старые стримы
+# TODO: сделать возможность добавлять свои параметры в cmdline к команде записи
 
 import os
 from threading import Thread
@@ -11,6 +13,8 @@ import schedule
 from twitch import TwitchClient
 import subprocess
 import time
+streamers = config_python.streamers
+client_id = config_python.twitchid
 
 
 def which(command):
@@ -50,7 +54,6 @@ def recorder(i):
     path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
     # cmdline для запуска youtube-dl 
-    # TODO: сделать возможность добавлять свои параметры
     cmdline = ["youtube-dl","https://twitch.tv/"+i]
     s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
     print("Запись стрима %s закончена\n" % i)
@@ -59,8 +62,6 @@ def recorder(i):
         print("lock файл удален")
 
 def checkAlive():
-    streamers = config_python.streamers
-    client_id = config_python.twitchid
     '''
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
@@ -71,9 +72,8 @@ def checkAlive():
         # Путь до диры со стримами
         path = config_python.path + "/"+ i
         # Создаем путь до диры со стримером, если его нет
-        if not (os.path.exists(config_python.path+"/"+i)):
+        if not (os.path.exists(config_python.path + "/" + i)):
             os.makedirs(path)
-        # TODO: Сделать проверку на наличие стримера
         user_id=client.users.translate_usernames_to_ids(i)[0]['id'] # Получить ID по нику
         # Если стрим идет, то идем дальше
         if client.streams.get_stream_by_user(user_id):
