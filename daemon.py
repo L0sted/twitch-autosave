@@ -3,7 +3,6 @@
 # TODO: Сделать проверку на наличие стримера
 # FIXME: не создавать папки для несуществующих стримеров
 # TODO: Сделать нормальную конфигурацию
-# TODO: Автоматически удалять старые стримы
 # TODO: сделать возможность добавлять свои параметры в cmdline к команде записи
 
 import os
@@ -94,11 +93,24 @@ def checkAlive():
 
 def removeOldStreams():
     # https://clck.ru/WHh32
-    pass
+    records_path = config_python.path
+    # По каждой папке со стримерами
+    for i in streamers:
+        if len(os.listdir(records_path+i)) > config_python.max_files:
+            # Получаем список файлов 
+            # и смотрим, превышает ли кол-во mp4 файлов заданное в конфиге
+            # Если превышает - удаляем старейший
+            oldest = min(os.listdir(records_path+i), key=os.path.getctime)
+            os.unlink(oldest)
+            print("Удален файл: " + oldest)
 
 if __name__ == "__main__":
+    # Проверить, установлены ли нужные утилиты
     if not checkTools(): exit()
-    schedule.every(config_python.period).minutes.do(checkAlive)
+    # Проверять стримы раз в check_period
+    schedule.every(config_python.check_period).minutes.do(checkAlive)
+    # Каждый час удалять старые стримы
+    schedule.every(1).hours.do(removeOldStreams)
     while True:
         schedule.run_pending()
         time.sleep(1)    
