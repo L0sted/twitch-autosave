@@ -53,8 +53,10 @@ def recorder(i):
     path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
     # cmdline для запуска youtube-dl 
-    cmdline = ["youtube-dl","https://twitch.tv/"+i]
-    s = subprocess.call(cmdline, stdout=subprocess.DEVNULL)
+    cmdline = ["youtube-dl", "-q",
+        "-o", path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
+        "https://twitch.tv/"+i]
+    s = subprocess.call(cmdline)
     print("Запись стрима %s закончена\n" % i)
     if (os.path.exists(path+"/pid")):
         os.system("rm "+path+"/pid")
@@ -82,7 +84,7 @@ def checkAlive():
                 startRecord(i)
                 os.system("touch "+path+"/pid")
             else:
-                print(i+" Уже стримит")
+                print(i+" Идет запись")
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
             print(i+" Не стримит")
@@ -108,7 +110,7 @@ if __name__ == "__main__":
     # Проверить, установлены ли нужные утилиты
     if not checkTools(): exit()
     # Проверять стримы раз в check_period
-    schedule.every(config_python.check_period).minutes.do(checkAlive)
+    schedule.every(config_python.check_period).seconds.do(checkAlive)
     # Каждый час удалять старые стримы
     schedule.every(1).hours.do(removeOldStreams)
     while True:
