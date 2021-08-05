@@ -3,7 +3,6 @@
 # TODO: Сделать проверку на наличие стримера
 # FIXME: не создавать папки для несуществующих стримеров
 # TODO: Сделать нормальную конфигурацию
-# TODO: сделать возможность добавлять свои параметры в cmdline к команде записи
 
 import os
 from threading import Thread
@@ -14,7 +13,7 @@ import subprocess
 import time
 streamers = config_python.streamers
 client_id = config_python.twitchid
-
+ytdl_options = config_python.ytdl_options
 
 def which(command):
     # Пиздец, почему нет нормального аналога which из bash???
@@ -53,7 +52,7 @@ def recorder(i):
     path = config_python.path + "/"+ i
     print("Записываем стрим %s\n" % i)
     # cmdline для запуска youtube-dl 
-    cmdline = ["youtube-dl", "-q",
+    cmdline = ["youtube-dl", "-q", ytdl_options, 
         "-o", path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
         "https://twitch.tv/"+i]
     s = subprocess.call(cmdline)
