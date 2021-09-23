@@ -14,6 +14,8 @@ import subprocess
 import time
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from termcolor import colored
+
 streamers = config_python.streamers
 client_id = config_python.twitchid
 log_format = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
@@ -94,7 +96,13 @@ def checkAlive():
                 startRecord(i)
                 os.system("touch "+path+"/pid")
             else:
-                log.info(i + " Идет запись")
+                log.info(
+                    colored(
+                        "Идет запись " + i,
+                        'red',
+                        attrs=['bold']
+                    )
+                )
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
             log.info(i + " Не стримит")
