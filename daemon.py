@@ -62,8 +62,7 @@ def recorder(i):
     path = config_python.path + "/" + i
     log.info("Записываем стрим %s\n" % i)
     # cmdline для запуска youtube-dl
-    cmdline = ["youtube-dl", "-q", ytdl_options,
-               "-o",
+    cmdline = ["youtube-dl", "-q", "-o",
                path+"/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
                "https://twitch.tv/" + i]
     s = subprocess.call(cmdline)
