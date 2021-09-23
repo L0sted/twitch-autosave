@@ -16,7 +16,6 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 streamers = config_python.streamers
 client_id = config_python.twitchid
-ytdl_options = config_python.ytdl_options
 log_format = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
 log_file = 'output.log'
 
@@ -65,7 +64,7 @@ def recorder(i):
     cmdline = ["youtube-dl", "-q", "-o",
                path+"/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
                "https://twitch.tv/" + i]
-    s = subprocess.call(cmdline)
+    subprocess.call(cmdline)
     log.info("Запись стрима %s закончена\n" % i)
     if (os.path.exists(path+"/pid")):
         os.system("rm "+path+"/pid")
@@ -115,21 +114,25 @@ def removeOldStreams():
                 # Получаем список файлов
                 # и смотрим, превышает ли кол-во mp4 файлов заданное в конфиге
                 # Если превышает - удаляем старейший
-                oldest = min(os.listdir(records_path+"/"+i), key=os.path.getctime)
+                oldest = min(os.listdir(records_path+"/"+i),
+                             key=os.path.getctime)
                 os.unlink(oldest)
                 log.warning("Удален файл: " + oldest)
         except Exception as e:
             log.error(e)
+
 
 def get_console_handler():
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(log_format)
     return console_handler
 
+
 def get_file_handler():
     file_handler = TimedRotatingFileHandler(log_file, when='midnight')
     file_handler.setFormatter(log_format)
     return file_handler
+
 
 def get_logger(logger_name):
     logger = logging.getLogger(logger_name)
@@ -142,7 +145,8 @@ def get_logger(logger_name):
 
 if __name__ == "__main__":
     # Проверить, установлены ли нужные утилиты
-    if not checkTools(): exit()
+    if not checkTools():
+        exit()
 
     # Log config
     log = get_logger("main")
