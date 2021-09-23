@@ -109,6 +109,7 @@ def removeOldStreams():
     # По каждой папке со стримерами
     for i in streamers:
         try:
+            os.chdir(records_path+"/"+i)
             # Если файлов в папке со стримами больше чем указано в конфиге
             if len(os.listdir(records_path+"/"+i)) > config_python.max_files:
                 # Получаем список файлов
