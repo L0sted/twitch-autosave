@@ -74,12 +74,12 @@ def recorder(i):
 
 
 def checkAlive():
+    # FIXME: Распилить ну более мелкие функции
     '''
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
     '''
-    client = TwitchClient(client_id=client_id)
     for i in streamers:
         # Путь до диры со стримами
         path = config_python.path + "/" + i
@@ -177,6 +177,7 @@ if __name__ == "__main__":
     # Каждый час удалять старые стримы
     schedule.every(1).hours.do(removeOldStreams)
 
+    client = TwitchClient(client_id=client_id)
     while True:
         schedule.run_pending()
         time.sleep(1)
