@@ -69,7 +69,7 @@ def recorder(i):
     subprocess.call(cmdline)
     log.info("Запись стрима %s закончена\n" % i)
     if (os.path.exists(path+"/pid")):
-        os.system("rm "+path+"/pid")
+        os.remove(path+"/pid")
         log.info("lock файл удален")
 
 
@@ -105,7 +105,7 @@ def checkAlive():
             if (client.streams.get_stream_by_user(user_id).stream_type == 'live') and not (os.path.exists(config_python.path+"/"+i+"/pid")):
                 log.info(i + " стримит")
                 startRecord(i)
-                os.system("touch "+path+"/pid")
+                open(path+"/pid", 'w').close
             else:
                 log.info(
                     colored(
@@ -119,7 +119,7 @@ def checkAlive():
             log.info(i + " Не стримит")
             # Если есть лок, то удаляем
             if (os.path.exists(path+"/pid")):
-                os.system("rm "+path+"/pid")
+                os.remove(path+"/pid")
 
 
 def removeOldStreams():
