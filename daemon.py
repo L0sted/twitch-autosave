@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 # TODO: Перезапускать скрипт при обнаружении новой версии
-# FIXME: не создавать папки для несуществующих стримеров
 # TODO: Сделать нормальную конфигурацию
 
 import os
@@ -84,10 +83,7 @@ def checkAlive():
     for i in streamers:
         # Путь до диры со стримами
         path = config_python.path + "/" + i
-        # Создаем путь до диры со стримером, если его нет
-        if not (os.path.exists(path)):
-            os.makedirs(path)
-        # Получить ID по нику
+        # Получаем инфо о стримере, если не получается, выходим с ошибкой
         resolved_id = client.users.translate_usernames_to_ids(i)
         if not resolved_id:
             log.error(
@@ -97,6 +93,11 @@ def checkAlive():
                 )
             )
             break
+        # Создаем путь до диры со стримером, если папка не существует
+        if not (os.path.exists(path)):
+            os.makedirs(path)
+            log.info("Создана директория " + i)
+        # Достаем ID стримера из инфо
         user_id = resolved_id[0]['id']
         # Если стрим идет, то идем дальше
         if client.streams.get_stream_by_user(user_id):
