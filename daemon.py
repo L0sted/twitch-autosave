@@ -7,6 +7,7 @@
 import os
 import sys
 from threading import Thread
+from types import resolve_bases
 import config_python
 import schedule
 from twitch import TwitchClient
@@ -87,7 +88,16 @@ def checkAlive():
         if not (os.path.exists(path)):
             os.makedirs(path)
         # Получить ID по нику
-        user_id = client.users.translate_usernames_to_ids(i)[0]['id']
+        resolved_id = client.users.translate_usernames_to_ids(i)
+        if not resolved_id:
+            log.error(
+                colored(
+                    "Аккаунт " + i + " не найден",
+                    'red',
+                )
+            )
+            break
+        user_id = resolved_id[0]['id']
         # Если стрим идет, то идем дальше
         if client.streams.get_stream_by_user(user_id):
             # Если стрим идет и лок файла нет, то записываем и ставим лок
