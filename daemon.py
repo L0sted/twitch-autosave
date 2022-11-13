@@ -9,7 +9,7 @@ from threading import Thread
 from types import resolve_bases
 import config_python
 import schedule
-from twitch import TwitchClient
+from twitchAPI.twitch import Twitch
 import subprocess
 import time
 import logging
@@ -17,7 +17,9 @@ from logging.handlers import TimedRotatingFileHandler
 from termcolor import colored
 
 streamers = config_python.streamers
-client_id = config_python.twitchid
+app_id = config_python.appid
+app_secret = config_python.appsecret
+
 log_format = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
 log_file = 'output.log'
 
@@ -84,8 +86,10 @@ def checkAlive():
         # Путь до диры со стримами
         path = config_python.path + "/" + i
         # Получаем инфо о стримере, если не получается, выходим с ошибкой
-        resolved_id = client.users.translate_usernames_to_ids(i)
-        if not resolved_id:
+
+        # resolved_id = client.users.translate_usernames_to_ids(i)
+        resolved_id = twitch_client.get_users(logins=[i])
+        if not resolved_id['data']:
             log.error(
                 colored(
                     "Аккаунт " + i + " не найден",
@@ -98,11 +102,12 @@ def checkAlive():
             os.makedirs(path)
             log.info("Создана директория " + i)
         # Достаем ID стримера из инфо
-        user_id = resolved_id[0]['id']
+        user_id = resolved_id['data'][0]['id']
+        user_stream = twitch_client.get_streams(user_id=user_id)
         # Если стрим идет, то идем дальше
-        if client.streams.get_stream_by_user(user_id):
+        if user_stream['data']:
             # Если стрим идет и лок файла нет, то записываем и ставим лок
-            if (client.streams.get_stream_by_user(user_id).stream_type == 'live') and not (os.path.exists(config_python.path+"/"+i+"/pid")):
+            if (user_stream['data'][0]['type'] == 'live') and not (os.path.exists(config_python.path+"/"+i+"/pid")):
                 log.info(i + " стримит")
                 startRecord(i)
                 open(path+"/pid", 'w').close
@@ -177,7 +182,7 @@ if __name__ == "__main__":
     # Каждый час удалять старые стримы
     schedule.every(1).hours.do(removeOldStreams)
 
-    client = TwitchClient(client_id=client_id)
+    twitch_client = Twitch(app_id, app_secret)
     while True:
         schedule.run_pending()
         time.sleep(1)
