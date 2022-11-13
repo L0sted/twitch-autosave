@@ -24,10 +24,10 @@ log_file = 'output.log'
 
 def which(command):
     # Пиздец, почему нет нормального аналога which из bash???
-    '''
+    """
     Мой аналог which из bash'а, который отдает true или false
     при наличии или отсутствии утилиты
-    '''
+    """
     for dirs in os.get_exec_path():
         if command in os.listdir(dirs):
             # Если что-нибудь нашли, то True
@@ -37,9 +37,9 @@ def which(command):
 
 
 def checkTools():
-    '''
+    """
     Проверяет, установлены ли необходимые утилиты
-    '''
+    """
     tools = ('youtube-dl', 'ffmpeg')
     for i in tools:
         if not which(i):
@@ -49,17 +49,17 @@ def checkTools():
 
 
 def startRecord(i):
-    '''
+    """
     Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
-    '''
+    """
     th = Thread(target=recorder, args=(i, ))
     th.start()
 
 
 def recorder(i):
-    '''
+    """
     Функция, которая запускает youtube-dl, фактически записывает стрим
-    '''
+    """
     path = config_python.path + "/" + i
     log.info("Записываем стрим %s\n" % i)
     # cmdline для запуска youtube-dl
@@ -68,18 +68,18 @@ def recorder(i):
                "https://twitch.tv/" + i]
     subprocess.call(cmdline)
     log.info("Запись стрима %s закончена\n" % i)
-    if (os.path.exists(path+"/pid")):
+    if os.path.exists(path + "/pid"):
         os.remove(path+"/pid")
         log.info("lock файл удален")
 
 
 def checkAlive():
     # FIXME: Распилить ну более мелкие функции
-    '''
+    """
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
-    '''
+    """
     for i in streamers:
         # Путь до диры со стримами
         path = config_python.path + "/" + i
@@ -118,7 +118,7 @@ def checkAlive():
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
             log.info(i + " Не стримит")
             # Если есть лок, то удаляем
-            if (os.path.exists(path+"/pid")):
+            if os.path.exists(path + "/pid"):
                 os.remove(path+"/pid")
 
 
