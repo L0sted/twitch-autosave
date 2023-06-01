@@ -34,7 +34,7 @@ def set_config():
         config["twitch"] = {
             "app_id": "",
             "app_secret": "",
-            "streamers": ("asdf", "qqqqq")
+            "streamers": "asdf,qqqqq"
         }
         with open('cfg_file.ini', 'w') as cfg_file:
             config.write(cfg_file)
@@ -55,7 +55,7 @@ def which(command):
     return False
 
 
-def checkTools():
+def check_installed_tools():
     """
     Проверяет, установлены ли необходимые утилиты
     """
@@ -67,7 +67,7 @@ def checkTools():
     return True
 
 
-def startRecord(i):
+def start_recording(i):
     """
     Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
     """
@@ -92,14 +92,14 @@ def recorder(i):
         log.info("lock файл удален")
 
 
-def checkAlive():
-    # FIXME: Распилить ну более мелкие функции
+def check_stream():
+    # FIXME: Распилить на более мелкие функции
     """
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
     """
-    for i in config['twitch']['streamers']:
+    for i in config['twitch']['streamers'].split(','):
         # Путь до диры со стримами
         path = config['app']['path'] + "/" + i
         # Получаем инфо о стримере, если не получается, выходим с ошибкой
@@ -127,7 +127,7 @@ def checkAlive():
             if (user_stream['data'][0]['type'] == 'live') and not (
                     os.path.exists(config['app']['path'] + "/" + i + "/pid")):
                 log.info(i + " стримит")
-                startRecord(i)
+                start_recording(i)
                 open(config['app']['path'] + "/pid", 'w').close
             else:
                 log.info(
@@ -145,7 +145,7 @@ def checkAlive():
                 os.remove(path + "/pid")
 
 
-def removeOldStreams():
+def remove_old_streams():
     # https://clck.ru/WHh32
     records_path = config['app']['path']
     # По каждой папке со стримерами
@@ -188,7 +188,7 @@ def get_logger(logger_name):
 
 if __name__ == "__main__":
     # Проверить, установлены ли нужные утилиты
-    if not checkTools():
+    if not check_installed_tools():
         exit()
 
     # Set config
@@ -199,9 +199,9 @@ if __name__ == "__main__":
     log.info("Запущен")
 
     # Проверять стримы раз в check_period
-    schedule.every(int(config['app']['check_period'])).seconds.do(checkAlive)
+    schedule.every(int(config['app']['check_period'])).seconds.do(check_stream)
     # Каждый час удалять старые стримы
-    schedule.every(1).hours.do(removeOldStreams)
+    schedule.every(1).hours.do(remove_old_streams)
 
     twitch_client = Twitch(config['twitch']['app_id'], config['twitch']['app_secret'])
     while True:
