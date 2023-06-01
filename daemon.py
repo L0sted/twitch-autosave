@@ -12,7 +12,6 @@ import subprocess
 import time
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from termcolor import colored
 
 log_format = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
 log_file = 'output.log'
@@ -27,10 +26,10 @@ def set_config():
     config = configparser.ConfigParser()
     if not config.read('cfg_file.ini'):
         config["app"] = {
-                "path": "",
-                "check_period": 5,
-                "max_files": 3
-            }
+            "path": "",
+            "check_period": 5,
+            "max_files": 3
+        }
         config["twitch"] = {
             "app_id": "",
             "app_secret": "",
@@ -108,10 +107,7 @@ def check_stream():
         resolved_id = twitch_client.get_users(logins=[i])
         if not resolved_id['data']:
             log.error(
-                colored(
-                    "Аккаунт " + i + " не найден",
-                    'red',
-                )
+                "Аккаунт " + i + " не найден"
             )
             continue
         # Создаем путь до диры со стримером, если папка не существует
@@ -131,11 +127,7 @@ def check_stream():
                 open(config['app']['path'] + "/pid", 'w').close
             else:
                 log.info(
-                    colored(
-                        "Идет запись " + i,
-                        'red',
-                        attrs=['bold']
-                    )
+                    "Идет запись " + i
                 )
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
@@ -177,10 +169,41 @@ def get_file_handler():
     return file_handler
 
 
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s %(levelname)s - %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
 def get_logger(logger_name):
+    """
+    Инициализация лога
+    """
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(get_console_handler())
+
+    # Console logging
+    console = get_console_handler()
+    console.setFormatter(CustomFormatter())
+    logger.addHandler(console)
+
     logger.addHandler(get_file_handler())
     logger.propagate = False
     return logger
