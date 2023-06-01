@@ -113,7 +113,7 @@ def check_stream():
                     'red',
                 )
             )
-            break
+            continue
         # Создаем путь до диры со стримером, если папка не существует
         if not (os.path.exists(path)):
             os.makedirs(path)
