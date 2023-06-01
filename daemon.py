@@ -78,16 +78,16 @@ def recorder(streamer):
     """
     Функция, которая запускает youtube-dl, фактически записывает стрим
     """
-    path = config['app']['path'] + "/" + streamer
+    streamer_path = os.path.join(config['app']['path'], streamer)
     log.info("Записываем стрим {}\n".format(streamer))
     # cmdline для запуска youtube-dl
     cmdline = ["youtube-dl", "-q", "-o",
-               path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
+               streamer_path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
                "https://twitch.tv/{}".format(streamer)]
     subprocess.call(cmdline)
     log.info("Запись стрима {} закончена\n".format(streamer))
-    if os.path.exists(path + "/pid"):
-        os.remove(path + "/pid")
+    if os.path.exists(os.path.join(streamer_path, "pid")):
+        os.remove(os.path.join(streamer_path, "pid"))
         log.info("lock файл удален")
 
 
@@ -100,7 +100,7 @@ def check_stream():
     """
     for streamer in config['twitch']['streamers'].split(','):
         # Путь до диры со стримами
-        path = config['app']['path'] + "/" + streamer
+        streamer_path = os.path.join(config['app']['path'], streamer)
         # Получаем инфо о стримере, если не получается, выходим с ошибкой
 
         # resolved_id = client.users.translate_usernames_to_ids(i)
@@ -111,9 +111,9 @@ def check_stream():
             )
             continue
         # Создаем путь до диры со стримером, если папка не существует
-        if not (os.path.exists(path)):
-            os.makedirs(path)
-            log.info("Создана директория {}".format(path))
+        if not (os.path.exists(streamer_path)):
+            os.makedirs(streamer_path)
+            log.info("Создана директория {}".format(streamer_path))
         # Достаем ID стримера из инфо
         user_id = resolved_id['data'][0]['id']
         user_stream = twitch_client.get_streams(user_id=user_id)
@@ -121,10 +121,10 @@ def check_stream():
         if user_stream['data']:
             # Если стрим идет и лок файла нет, то записываем и ставим лок
             if (user_stream['data'][0]['type'] == 'live') and not (
-                    os.path.exists(config['app']['path'] + "/" + streamer + "/pid")):
+                    os.path.exists(os.path.join(streamer_path, "pid"))):
                 log.info("{} стримит".format(streamer))
                 start_recording(streamer)
-                open(config['app']['path'] + "/pid", 'w').close
+                open(os.path.join(streamer_path, "pid"), 'w').close
             else:
                 log.info(
                     "Идет запись {}".format(streamer)
@@ -133,8 +133,8 @@ def check_stream():
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
             log.info("{} не стримит".format(streamer))
             # Если есть лок, то удаляем
-            if os.path.exists(path + "/pid"):
-                os.remove(path + "/pid")
+            if os.path.exists(os.path.join(streamer_path, "pid")):
+                os.remove(os.path.join(streamer_path, "pid"))
 
 
 def remove_old_streams():
@@ -143,13 +143,14 @@ def remove_old_streams():
     # По каждой папке со стримерами
     for streamer in config['twitch']['streamers']:
         try:
-            os.chdir(records_path + "/" + streamer)
+            streamer_dir_path = os.path.join(records_path, streamer)
+            os.chdir(streamer_dir_path)
             # Если файлов в папке со стримами больше чем указано в конфиге
-            if len(os.listdir(records_path + "/" + streamer)) > int(config['app']['max_files']):
+            if len(os.listdir(streamer_dir_path)) > int(config['app']['max_files']):
                 # Получаем список файлов
                 # и смотрим, превышает ли кол-во mp4 файлов заданное в конфиге
                 # Если превышает - удаляем старейший
-                oldest = min(os.listdir(records_path + "/" + streamer),
+                oldest = min(os.listdir(streamer_dir_path),
                              key=os.path.getctime)
                 os.unlink(oldest)
                 log.warning("Удален файл: {}".format(oldest))
