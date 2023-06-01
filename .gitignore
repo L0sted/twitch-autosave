@@ -4,4 +4,5 @@ config_list.sh
 __pycache__
 .vscode
 .idea
-output.log
+output.log*
+cfg_file.ini
