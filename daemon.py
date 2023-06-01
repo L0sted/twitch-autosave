@@ -61,7 +61,7 @@ def check_installed_tools() -> bool:
     tools = ('youtube-dl', 'ffmpeg')
     for tool in tools:
         if not which(tool):
-            log.critical(tool + " не установлен")
+            log.critical("{} не установлен".format(tool))
             return False
     return True
 
@@ -79,13 +79,13 @@ def recorder(streamer):
     Функция, которая запускает youtube-dl, фактически записывает стрим
     """
     path = config['app']['path'] + "/" + streamer
-    log.info("Записываем стрим %s\n" % streamer)
+    log.info("Записываем стрим {}\n".format(streamer))
     # cmdline для запуска youtube-dl
     cmdline = ["youtube-dl", "-q", "-o",
                path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
-               "https://twitch.tv/" + streamer]
+               "https://twitch.tv/{}".format(streamer)]
     subprocess.call(cmdline)
-    log.info("Запись стрима %s закончена\n" % streamer)
+    log.info("Запись стрима {} закончена\n".format(streamer))
     if os.path.exists(path + "/pid"):
         os.remove(path + "/pid")
         log.info("lock файл удален")
@@ -107,13 +107,13 @@ def check_stream():
         resolved_id = twitch_client.get_users(logins=[streamer])
         if not resolved_id['data']:
             log.error(
-                "Аккаунт " + streamer + " не найден"
+                "Аккаунт {} не найден".format(streamer)
             )
             continue
         # Создаем путь до диры со стримером, если папка не существует
         if not (os.path.exists(path)):
             os.makedirs(path)
-            log.info("Создана директория " + streamer)
+            log.info("Создана директория {}".format(path))
         # Достаем ID стримера из инфо
         user_id = resolved_id['data'][0]['id']
         user_stream = twitch_client.get_streams(user_id=user_id)
@@ -122,16 +122,16 @@ def check_stream():
             # Если стрим идет и лок файла нет, то записываем и ставим лок
             if (user_stream['data'][0]['type'] == 'live') and not (
                     os.path.exists(config['app']['path'] + "/" + streamer + "/pid")):
-                log.info(streamer + " стримит")
+                log.info("{} стримит".format(streamer))
                 start_recording(streamer)
                 open(config['app']['path'] + "/pid", 'w').close
             else:
                 log.info(
-                    "Идет запись " + streamer
+                    "Идет запись {}".format(streamer)
                 )
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
-            log.info(streamer + " Не стримит")
+            log.info("{} не стримит".format(streamer))
             # Если есть лок, то удаляем
             if os.path.exists(path + "/pid"):
                 os.remove(path + "/pid")
@@ -152,7 +152,7 @@ def remove_old_streams():
                 oldest = min(os.listdir(records_path + "/" + streamer),
                              key=os.path.getctime)
                 os.unlink(oldest)
-                log.warning("Удален файл: " + oldest)
+                log.warning("Удален файл: {}".format(oldest))
         except Exception as e:
             log.error(e)
 
