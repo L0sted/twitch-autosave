@@ -40,7 +40,7 @@ def set_config():
     return config
 
 
-def which(command):
+def which(command) -> bool:
     # Пиздец, почему нет нормального аналога which из bash???
     """
     Мой аналог which из bash'а, который отдает true или false
@@ -54,7 +54,7 @@ def which(command):
     return False
 
 
-def check_installed_tools():
+def check_installed_tools() -> bool:
     """
     Проверяет, установлены ли необходимые утилиты
     """
