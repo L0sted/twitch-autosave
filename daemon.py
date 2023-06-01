@@ -59,33 +59,33 @@ def check_installed_tools() -> bool:
     Проверяет, установлены ли необходимые утилиты
     """
     tools = ('youtube-dl', 'ffmpeg')
-    for i in tools:
-        if not which(i):
-            log.critical(i + " не установлен")
+    for tool in tools:
+        if not which(tool):
+            log.critical(tool + " не установлен")
             return False
     return True
 
 
-def start_recording(i):
+def start_recording(streamer):
     """
     Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
     """
-    th = Thread(target=recorder, args=(i,))
+    th = Thread(target=recorder, args=(streamer,))
     th.start()
 
 
-def recorder(i):
+def recorder(streamer):
     """
     Функция, которая запускает youtube-dl, фактически записывает стрим
     """
-    path = config['app']['path'] + "/" + i
-    log.info("Записываем стрим %s\n" % i)
+    path = config['app']['path'] + "/" + streamer
+    log.info("Записываем стрим %s\n" % streamer)
     # cmdline для запуска youtube-dl
     cmdline = ["youtube-dl", "-q", "-o",
                path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
-               "https://twitch.tv/" + i]
+               "https://twitch.tv/" + streamer]
     subprocess.call(cmdline)
-    log.info("Запись стрима %s закончена\n" % i)
+    log.info("Запись стрима %s закончена\n" % streamer)
     if os.path.exists(path + "/pid"):
         os.remove(path + "/pid")
         log.info("lock файл удален")
@@ -98,22 +98,22 @@ def check_stream():
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
     """
-    for i in config['twitch']['streamers'].split(','):
+    for streamer in config['twitch']['streamers'].split(','):
         # Путь до диры со стримами
-        path = config['app']['path'] + "/" + i
+        path = config['app']['path'] + "/" + streamer
         # Получаем инфо о стримере, если не получается, выходим с ошибкой
 
         # resolved_id = client.users.translate_usernames_to_ids(i)
-        resolved_id = twitch_client.get_users(logins=[i])
+        resolved_id = twitch_client.get_users(logins=[streamer])
         if not resolved_id['data']:
             log.error(
-                "Аккаунт " + i + " не найден"
+                "Аккаунт " + streamer + " не найден"
             )
             continue
         # Создаем путь до диры со стримером, если папка не существует
         if not (os.path.exists(path)):
             os.makedirs(path)
-            log.info("Создана директория " + i)
+            log.info("Создана директория " + streamer)
         # Достаем ID стримера из инфо
         user_id = resolved_id['data'][0]['id']
         user_stream = twitch_client.get_streams(user_id=user_id)
@@ -121,17 +121,17 @@ def check_stream():
         if user_stream['data']:
             # Если стрим идет и лок файла нет, то записываем и ставим лок
             if (user_stream['data'][0]['type'] == 'live') and not (
-                    os.path.exists(config['app']['path'] + "/" + i + "/pid")):
-                log.info(i + " стримит")
-                start_recording(i)
+                    os.path.exists(config['app']['path'] + "/" + streamer + "/pid")):
+                log.info(streamer + " стримит")
+                start_recording(streamer)
                 open(config['app']['path'] + "/pid", 'w').close
             else:
                 log.info(
-                    "Идет запись " + i
+                    "Идет запись " + streamer
                 )
         else:
             # Если стрим не идет, то пишем об этом и убираем его из залоченных
-            log.info(i + " Не стримит")
+            log.info(streamer + " Не стримит")
             # Если есть лок, то удаляем
             if os.path.exists(path + "/pid"):
                 os.remove(path + "/pid")
@@ -141,15 +141,15 @@ def remove_old_streams():
     # https://clck.ru/WHh32
     records_path = config['app']['path']
     # По каждой папке со стримерами
-    for i in config['twitch']['streamers']:
+    for streamer in config['twitch']['streamers']:
         try:
-            os.chdir(records_path + "/" + i)
+            os.chdir(records_path + "/" + streamer)
             # Если файлов в папке со стримами больше чем указано в конфиге
-            if len(os.listdir(records_path + "/" + i)) > int(config['app']['max_files']):
+            if len(os.listdir(records_path + "/" + streamer)) > int(config['app']['max_files']):
                 # Получаем список файлов
                 # и смотрим, превышает ли кол-во mp4 файлов заданное в конфиге
                 # Если превышает - удаляем старейший
-                oldest = min(os.listdir(records_path + "/" + i),
+                oldest = min(os.listdir(records_path + "/" + streamer),
                              key=os.path.getctime)
                 os.unlink(oldest)
                 log.warning("Удален файл: " + oldest)
