@@ -118,14 +118,6 @@ def check_installed_tools() -> bool:
     return True
 
 
-def start_recording(streamer):
-    """
-    Функция, которая запускает в отдельном потоке запись стрима - recorder(i)
-    """
-    th = Thread(target=recorder, args=(streamer,))
-    th.start()
-
-
 def recorder(streamer):
     """
     Функция, которая запускает youtube-dl, фактически записывает стрим
@@ -175,7 +167,8 @@ def check_stream():
             if (user_stream['data'][0]['type'] == 'live') and not (
                     os.path.exists(os.path.join(streamer_path, "pid"))):
                 log.info("{} стримит".format(streamer))
-                start_recording(streamer)
+                th = Thread(target=recorder, args=(streamer,))
+                th.start()
                 os.mknod(os.path.join(streamer_path, "pid"))
             else:
                 log.info(
