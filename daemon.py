@@ -169,7 +169,7 @@ def record_streamer(user_stream, streamer):
             )
     else:
         # Если стрим не идет, то пишем об этом и убираем его из залоченных
-        log.info("{} не стримит".format(streamer))
+        log.debug("{} не стримит".format(streamer))
         # Если есть лок, то удаляем
         if os.path.exists(os.path.join(streamer_path, "pid")):
             os.remove(os.path.join(streamer_path, "pid"))
