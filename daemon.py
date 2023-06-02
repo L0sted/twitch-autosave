@@ -76,6 +76,7 @@ def set_config():
     Возвращает объект конфига (configparser.ConfigParser())
     """
     config = configparser.ConfigParser()
+    # Читаем конфиг, если пустой - заполняем
     if not config.read('cfg_file.ini'):
         config["app"] = {
             "path": "",
@@ -85,10 +86,17 @@ def set_config():
         config["twitch"] = {
             "app_id": "",
             "app_secret": "",
-            "streamers": "asdf,qqqqq"
+            "streamers": "t2x2,arcadia_online,252mart,the_viox"
         }
         with open('cfg_file.ini', 'w') as cfg_file:
             config.write(cfg_file)
+
+    # Проверка конфига
+    if config['twitch']['app_id'] == "" or config['twitch']['app_secret'] == "":
+        log.critical("Параметры app_id или app_secret пусты. Необходимо заполнить эти параметры в конфиге. "
+                     "Читай README.md")
+        exit(1)
+
     return config
 
 
@@ -215,15 +223,15 @@ def remove_old_streams():
 
 
 if __name__ == "__main__":
+    # Log config
+    log = get_logger("main")
+
     # Проверить, установлены ли нужные утилиты
     if not check_installed_tools():
         exit()
 
     # Set config
     config = set_config()
-
-    # Log config
-    log = get_logger("main")
 
     # Проверять стримы раз в check_period
     # Каждый час удалять старые стримы
