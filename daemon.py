@@ -136,7 +136,7 @@ def recorder(streamer):
 
 
 def get_streamer_id(streamer):
-    """Получаем id стримера, если не получается, отдаем None"""
+    """Получаем id стримера, при неудаче отдаем None"""
     resolved_id = twitch_client.get_users(logins=[streamer])
     if resolved_id['data']:
         return resolved_id['data'][0]['id']
@@ -177,9 +177,9 @@ def record_streamer(user_stream, streamer):
 
 def streamers_loop():
     """
-    1. Проверка на наличие стрима
-    1.1 Если нет - удалить lock файл, если он есть
-    1.2 Если есть - создать lock файл, запустить записывалку
+    Цикл по стримерам
+    Проходится по каждому логину, достает ID стримера,
+    достает инфу о стримах, запускает функцию для записи
     """
     for streamer in config['twitch']['streamers'].split(','):
 
