@@ -176,7 +176,7 @@ def check_stream():
                     os.path.exists(os.path.join(streamer_path, "pid"))):
                 log.info("{} стримит".format(streamer))
                 start_recording(streamer)
-                open(os.path.join(streamer_path, "pid"), 'w').close
+                os.mknod(os.path.join(streamer_path, "pid"))
             else:
                 log.info(
                     "Идет запись {}".format(streamer)
