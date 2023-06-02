@@ -123,13 +123,13 @@ def recorder(streamer):
     Функция, которая запускает youtube-dl, фактически записывает стрим
     """
     streamer_path = os.path.join(config['app']['path'], streamer)
-    log.info("Записываем стрим {}\n".format(streamer))
+    log.info("Записываем стрим {}".format(streamer))
     # cmdline для запуска youtube-dl
     cmdline = ["youtube-dl", "-q", "-o",
                streamer_path + "/%(upload_date)s_%(title)s__%(timestamp)s_%(id)s.%(ext)s",
                "https://twitch.tv/{}".format(streamer)]
     subprocess.call(cmdline)
-    log.info("Запись стрима {} закончена\n".format(streamer))
+    log.info("Запись стрима {} закончена".format(streamer))
     if os.path.exists(os.path.join(streamer_path, "pid")):
         os.remove(os.path.join(streamer_path, "pid"))
         log.info("lock файл удален")
