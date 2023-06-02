@@ -18,6 +18,58 @@ log_file = 'output.log'
 cfg_file = 'config.ini'
 
 
+def get_console_handler():
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(log_format)
+    return console_handler
+
+
+def get_file_handler():
+    file_handler = TimedRotatingFileHandler(log_file, when='midnight')
+    file_handler.setFormatter(log_format)
+    return file_handler
+
+
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s %(levelname)s - %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
+def get_logger(logger_name):
+    """
+    Инициализация лога
+    """
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+
+    # Console logging
+    console = get_console_handler()
+    console.setFormatter(CustomFormatter())
+    logger.addHandler(console)
+
+    logger.addHandler(get_file_handler())
+    logger.propagate = False
+    return logger
+
+
 def set_config():
     """
     Эта функция либо читает существующий конфиг, либо создает новый.
@@ -156,58 +208,6 @@ def remove_old_streams():
                 log.warning("Удален файл: {}".format(oldest))
         except Exception as e:
             log.error(e)
-
-
-def get_console_handler():
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(log_format)
-    return console_handler
-
-
-def get_file_handler():
-    file_handler = TimedRotatingFileHandler(log_file, when='midnight')
-    file_handler.setFormatter(log_format)
-    return file_handler
-
-
-class CustomFormatter(logging.Formatter):
-
-    grey = "\x1b[38;20m"
-    yellow = "\x1b[33;20m"
-    red = "\x1b[31;20m"
-    bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m"
-    format = "%(asctime)s %(levelname)s - %(message)s"
-
-    FORMATS = {
-        logging.DEBUG: grey + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset
-    }
-
-    def format(self, record):
-        log_fmt = self.FORMATS.get(record.levelno)
-        formatter = logging.Formatter(log_fmt)
-        return formatter.format(record)
-
-
-def get_logger(logger_name):
-    """
-    Инициализация лога
-    """
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
-
-    # Console logging
-    console = get_console_handler()
-    console.setFormatter(CustomFormatter())
-    logger.addHandler(console)
-
-    logger.addHandler(get_file_handler())
-    logger.propagate = False
-    return logger
 
 
 if __name__ == "__main__":
