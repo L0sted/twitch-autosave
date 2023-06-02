@@ -135,51 +135,62 @@ def recorder(streamer):
         log.info("lock файл удален")
 
 
-def check_stream():
-    # FIXME: Распилить на более мелкие функции
+def get_streamer_id(streamer):
+    """Получаем id стримера, если не получается, отдаем None"""
+    resolved_id = twitch_client.get_users(logins=[streamer])
+    if resolved_id['data']:
+        return resolved_id['data'][0]['id']
+    else:
+        log.error(
+            "Аккаунт {} не найден".format(streamer)
+        )
+        return None
+
+
+def record_streamer(user_stream, streamer):
+    """Проверяем, идет ли стрим. Если идет - записываем. Если не идет - удаляем pid файл"""
+    streamer_path = os.path.join(config['app']['path'], streamer)
+    if user_stream['data']:
+        # Создаем путь до диры со стримером, если папка не существует
+        if not (os.path.exists(streamer_path)):
+            os.makedirs(streamer_path)
+            log.info("Создана директория {}".format(streamer_path))
+
+        # Если стрим идет и лок файла нет, то записываем и ставим лок
+        if (user_stream['data'][0]['type'] == 'live') and not (
+                os.path.exists(os.path.join(streamer_path, "pid"))):
+            log.info("{} стримит".format(streamer))
+            th = Thread(target=recorder, args=(streamer,))
+            th.start()
+            os.mknod(os.path.join(streamer_path, "pid"))
+        else:
+            log.info(
+                "Идет запись {}".format(streamer)
+            )
+    else:
+        # Если стрим не идет, то пишем об этом и убираем его из залоченных
+        log.info("{} не стримит".format(streamer))
+        # Если есть лок, то удаляем
+        if os.path.exists(os.path.join(streamer_path, "pid")):
+            os.remove(os.path.join(streamer_path, "pid"))
+
+
+def streamers_loop():
     """
     1. Проверка на наличие стрима
     1.1 Если нет - удалить lock файл, если он есть
     1.2 Если есть - создать lock файл, запустить записывалку
     """
     for streamer in config['twitch']['streamers'].split(','):
-        # Путь до диры со стримами
-        streamer_path = os.path.join(config['app']['path'], streamer)
-        # Получаем инфо о стримере, если не получается, выходим с ошибкой
 
-        # resolved_id = client.users.translate_usernames_to_ids(i)
-        resolved_id = twitch_client.get_users(logins=[streamer])
-        if not resolved_id['data']:
-            log.error(
-                "Аккаунт {} не найден".format(streamer)
-            )
+        # Достаем ID стримера, если пустой - пропускаем цикл
+        user_id = get_streamer_id(streamer)
+        if user_id is None:
             continue
-        # Создаем путь до диры со стримером, если папка не существует
-        if not (os.path.exists(streamer_path)):
-            os.makedirs(streamer_path)
-            log.info("Создана директория {}".format(streamer_path))
-        # Достаем ID стримера из инфо
-        user_id = resolved_id['data'][0]['id']
+        # Получаем данные о стриме
         user_stream = twitch_client.get_streams(user_id=user_id)
-        # Если стрим идет, то идем дальше
-        if user_stream['data']:
-            # Если стрим идет и лок файла нет, то записываем и ставим лок
-            if (user_stream['data'][0]['type'] == 'live') and not (
-                    os.path.exists(os.path.join(streamer_path, "pid"))):
-                log.info("{} стримит".format(streamer))
-                th = Thread(target=recorder, args=(streamer,))
-                th.start()
-                os.mknod(os.path.join(streamer_path, "pid"))
-            else:
-                log.info(
-                    "Идет запись {}".format(streamer)
-                )
-        else:
-            # Если стрим не идет, то пишем об этом и убираем его из залоченных
-            log.info("{} не стримит".format(streamer))
-            # Если есть лок, то удаляем
-            if os.path.exists(os.path.join(streamer_path, "pid")):
-                os.remove(os.path.join(streamer_path, "pid"))
+        # Запускаем запись
+        record_streamer(user_stream, streamer)
 
 
 def remove_old_streams():
@@ -216,7 +227,7 @@ if __name__ == "__main__":
 
     # Проверять стримы раз в check_period
     # Каждый час удалять старые стримы
-    schedule.every(int(config['app']['check_period'])).seconds.do(check_stream)
+    schedule.every(int(config['app']['check_period'])).seconds.do(streamers_loop)
     schedule.every(1).hours.do(remove_old_streams)
 
     # Инициализируем клиент твича
