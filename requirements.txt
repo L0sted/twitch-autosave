@@ -1,4 +1,3 @@
-youtube-dl==2021.4.17
+youtube-dl==2021.12.17
 twitchAPI==2.5.7.1
-schedule
-termcolor
+schedule==1.2.0

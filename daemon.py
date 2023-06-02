@@ -220,14 +220,15 @@ if __name__ == "__main__":
 
     # Log config
     log = get_logger("main")
-    log.info("Запущен")
 
     # Проверять стримы раз в check_period
-    schedule.every(int(config['app']['check_period'])).seconds.do(check_stream)
     # Каждый час удалять старые стримы
+    schedule.every(int(config['app']['check_period'])).seconds.do(check_stream)
     schedule.every(1).hours.do(remove_old_streams)
 
+    # Инициализируем клиент твича
     twitch_client = Twitch(config['twitch']['app_id'], config['twitch']['app_secret'])
+    log.info("Запущен")
     while True:
         schedule.run_pending()
         time.sleep(1)
